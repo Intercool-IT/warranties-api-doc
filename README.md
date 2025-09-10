@@ -33,7 +33,7 @@ Content-Type: application/json
 ## 📤 Παράδειγμα Αιτήματος
 
 ```http
-POST /api/warranty/register
+POST https://sendo.world/api/register_warranty
 Content-Type: application/json
 
 {
