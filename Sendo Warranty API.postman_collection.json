@@ -68,7 +68,7 @@
 					]
 				},
 				"url": {
-					"raw": "https://sendo.world/api/register_warranty/index.php",
+					"raw": "https://sendo.world/api/register_warranty/",
 					"protocol": "https",
 					"host": [
 						"sendo",
