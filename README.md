@@ -8,12 +8,12 @@ API για καταχώρηση εγγυήσεων προϊόντων με στ�
 
 ```
 POST https://sendo.world/api/register_warranty/
-Content-Type: application/json
+Content-Type: multipart/form-data
 ```
 
 ---
 
-## 📥 Request Body
+## 📥 Request Body (Form Data)
 
 | Πεδίο           | Τύπος  | Υποχρεωτικό | Περιγραφή                                      |
 |-----------------|--------|-------------|------------------------------------------------|
@@ -32,55 +32,97 @@ Content-Type: application/json
 
 ## 📤 Παράδειγμα Αιτήματος
 
-```http
-POST https://sendo.world/api/register_warranty
-Content-Type: application/json
+### cURL
 
-{
-  "owner_name": "Γιάννης Παπαδόπουλος",
-  "address": "Αθήνα 123",
-  "postal_code": "12345",
-  "mobile_phone": "+306912345678",
-  "landline": "2101234567",
-  "email": "giannis@example.com",
-  "serial_number": "SN123456789",
-  "purchase_date": "2025-09-01",
-  "document_number": "INV-555",
-  "merchant_name": "Ηλεκτρομάγαζο"
-}
+```bash
+curl -X POST https://sendo.world/api/register_warranty/index.php \
+  -F "owner_name=Γιάννης Παπαδόπουλος" \
+  -F "address=Αθήνα 123" \
+  -F "postal_code=12345" \
+  -F "mobile_phone=+306912345678" \
+  -F "landline=2101234567" \
+  -F "email=giannis@example.com" \
+  -F "serial_number=B8926E094702N00167" \
+  -F "purchase_date=2025-09-01" \
+  -F "document_number=INV-555" \
+  -F "merchant_name=Ηλεκτρομάγαζο"
 ```
+
+### Postman
+
+1. Method: **POST**
+2. URL: `https://sendo.world/api/register_warranty/index.php`
+3. Body: **form-data** (όχι raw/JSON)
+4. Συμπληρώστε τα πεδία όπως φαίνεται στον πίνακα πεδίων
 
 ---
 
 ## 📬 Responses
 
-### ✅ Success (201 Created)
+### ✅ Success - Warranty & SMS Sent (201 Created)
 
 ```json
 {
   "status": "success",
-  "message": "Warranty registered successfully.",
+  "message": "Warranty registered successfully and SMS sent.",
   "warranty_id": 123,
-  "lifetime": true
+  "lifetime": true,
+  "sms_status": "sent",
+  "gateway_message_id": 98765
 }
 ```
 
+### ✅ Success - Warranty Registered but SMS Logging Failed (201 Created)
+
+```json
+{
+  "status": "success",
+  "message": "Warranty registered successfully but SMS logging failed.",
+  "warranty_id": 123,
+  "lifetime": true,
+  "sms_status": "failed",
+  "sms_error": "SMS log insert failed: [database error]"
+}
+```
+
+> **Σημείωση:** Ακόμα και αν αποτύχει η καταγραφή του SMS, η εγγύηση καταχωρείται επιτυχώς και το SMS αποστέλλεται στον πελάτη.
+
 ### ⚠️ Error Responses
 
-| HTTP Code | Status | Παράδειγμα Response                                                    |
-|-----------|--------|------------------------------------------------------------------------|
-| **400**       | error  | `{"status":"error","message":"Missing required fields."}`                |
-| **404**       | error  | `{"status":"error","message":"Invalid serial number. Contact support."}` |
-| **409**       | error  | `{"status":"error","message":"Serial number already registered."}`       |
-| **405**       | error  | `{"status":"error","message":"Method not allowed. Use POST."}`           |
-| **500**       | error  | `{"status":"error","message":"Database connection failed"}`              |
+| HTTP Code | Status | Περιγραφή                                                    |
+|-----------|--------|--------------------------------------------------------------|
+| **400**       | error  | Λείπουν υποχρεωτικά πεδία ή invalid email format                |
+| **404**       | error  | Ο σειριακός αριθμός δεν υπάρχει στη βάση δεδομένων             |
+| **409**       | error  | Ο σειριακός αριθμός είναι ήδη καταχωρημένος                    |
+| **405**       | error  | Το αίτημα δεν είναι POST                                       |
+| **500**       | error  | Σφάλμα σύνδεσης βάσης δεδομένων                                |
+
+### Παράδειγμα Error Response
+
+```json
+{
+  "status": "error",
+  "message": "Invalid serial number. Contact support."
+}
+```
+
+---
+
+## 🔔 SMS Notification
+
+Με επιτυχημένη καταχώρηση της εγγύησης, το σύστημα αποστέλλει αυτόματα SMS στο δηλωμένο κινητό τηλέφωνο με:
+- Ευχαριστίες για την ενεργοποίηση της εγγύησης
+- Link προς τους όρους εγγύησης (https://sendo.gr)
+- Πληροφορίες για νέα προϊόντα
 
 ---
 
 ## 📌 Σημειώσεις
 
-- Τα αιτήματα στέλνονται σε JSON.
-- Οι σειριακοί αριθμοί ελέγχονται βάσει της επίσημης λίστας.
-- Αν ο σειριακός αριθμός υπάρχει ήδη, επιστρέφεται `409 Conflict`.
-- Με επιτυχημένη καταχώρηση αποστέλλεται αυτόματα SMS στο δηλωμένο κινητό.
-- To `404 Error` θα γίνει rework ώστε να καταχωρεί το record απλα προς έγκριση, θα επιστρέφει ενα μήνυμα σχεδόν επιτυχίας και το sms θα φεύγει όταν το customer service μας επιβεβαιώσει το λάθος. Πρός ώρας να διαχειριστεί ως error, στο μέλλον θα θεωρείται **warning**.
+- Τα αιτήματα αποστέλλονται ως **form-data** (multipart/form-data), **όχι** JSON.
+- Οι σειριακοί αριθμοί ελέγχονται βάσει της επίσημης λίστας στη βάση δεδομένων.
+- Αν ο σειριακός αριθμός υπάρχει ήδη, επιστρέφεται `409 Conflict` και δεν καταχωρείται νέα εγγύηση.
+- Το κινητό τηλέφωνο αποδεκτό σε μορφές: `+306912345678` ή `00306912345678`.
+- Η ημερομηνία αγοράς πρέπει να είναι σε μορφή `YYYY-MM-DD`.
+- Τα αιτήματα επιστρέφουν πάντα JSON response με κατάλληλο HTTP status code.
+- **Σχεδιαζόμενη βελτίωση:** Το 404 error θα rework ώστε να καταχωρεί το record προς έγκριση, να επιστρέφει quasi-success message και το SMS να φεύγει όταν το customer service επιβεβαιώσει. Πρός ώρας θα διαχειρίζεται ως error, στο μέλλον θα είναι **warning**.

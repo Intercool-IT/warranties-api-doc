@@ -1,0 +1,87 @@
+{
+	"info": {
+		"_postman_id": "a93c637e-38ca-4e86-8b82-9e4d91b99d86",
+		"name": "Sendo Warranty API",
+		"description": "Warranty registration with SMS notification",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "31005465"
+	},
+	"item": [
+		{
+			"name": "Register Warranty",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "owner_name",
+							"value": "Evaggelos Giannoulis",
+							"type": "text"
+						},
+						{
+							"key": "address",
+							"value": "Kolokotroni 12 Patra",
+							"type": "text"
+						},
+						{
+							"key": "postal_code",
+							"value": "26350",
+							"type": "text"
+						},
+						{
+							"key": "mobile_phone",
+							"value": "+306983701191",
+							"type": "text"
+						},
+						{
+							"key": "landline",
+							"value": "2108765432",
+							"type": "text"
+						},
+						{
+							"key": "email",
+							"value": "john.doe@example.com",
+							"type": "text"
+						},
+						{
+							"key": "serial_number",
+							"value": "B8926E094702N00167",
+							"type": "text"
+						},
+						{
+							"key": "purchase_date",
+							"value": "2025-01-15",
+							"type": "text"
+						},
+						{
+							"key": "document_number",
+							"value": "INV-2024-001234",
+							"type": "text"
+						},
+						{
+							"key": "merchant_name",
+							"value": "Electronics Store XYZ",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "https://sendo.world/api/register_warranty/index.php",
+					"protocol": "https",
+					"host": [
+						"sendo",
+						"world"
+					],
+					"path": [
+						"api",
+						"register_warranty",
+						"index.php"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
